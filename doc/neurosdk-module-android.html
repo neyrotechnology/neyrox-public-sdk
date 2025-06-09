@@ -1,0 +1,2485 @@
+<!DOCTYPE html><html><head><title>Neurotracker SDK</title><meta charset='utf-8'><link href='marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+<!------------------------------------------------------   -->
+
+
+<h1 id="module-neuro">neurosdk-module</h1>
+
+
+<!------------------------------------------------------------- References   -->
+<nav class="toc">
+<h2>Содержание:</h2>
+<ul>
+<li><a href="#1-func">1 Описание модуля</a>
+<li><a href="#11-main frame">Структура модуля</a>
+<li><a href="#12-main_load">Загрузка модуля</a>
+
+<li><a href="#2-main_init">2 Инициализация модуля</a>
+<li><a href="#2.1-init">Инициализация</a>
+<li><a href="#2.2-demo">Включение демо-режима</a>
+<li><a href="#2.3-service">Запуск в режиме сервиса</a>
+<li><a href="#2.4-platform">Определение платформы, на которой запущено приложение</a>
+<li><a href="#2.5-permissions">Запрос разрешений для работы приложения</a>
+<li><a href="#2.6-permissions">Проверка группы разрешений</a>
+<li><a href="#2.7-permissions">Запрос группы разрешений</a>
+<li><a href="#2.8-permissions">Вызов окна настроек приложения и окна настроек уведомлений</a>
+<li><a href="#2.9-log">Включение режима записи лога</a>
+
+<li><a href="#3-main_search">3 Доступ к устройству</a>
+<li><a href="#3-start-search">Поиск устройства</a>
+<li><a href="#3-stop-search">Останов поиска</a>
+<li><a href="#3-device-list">Получение списка устройств</a>
+<li><a href="#3-connect">Подключение к найденному устройству</a>
+<li><a href="#3-autoconnect">Автоподключение</a>
+<li><a href="#3-disconnect">Отключение от устройства</a>
+
+<li><a href="#4-main_device">4 Информация об устройстве</a>
+<li><a href="#4-main_info">Состояние устройства</a>
+<li><a href="#4-main_cap">Возможности прибора</a>
+
+<li><a href="#5-main_settings">5 Настройка устройства</a>
+<li><a href="#5-lang">Настройка языка</a>
+<li><a href="#5-datetime">Настройка даты и времени</a>
+<li><a href="#5-interval">Настройка периода измерения</a>
+<li><a href="#5-user">Настройка данных пользователя</a>
+
+<li><a href="#6-main_meas">6 Данные измерения</a>
+<li><a href="#6-meas-sync">Запрос последних данных из устройства (сихронизация данных)</a>
+<li><a href="#6-meas-get-history">Запрос всех данных из устройства</a>
+<li><a href="#6-meas-delete-history">Пометка данных как прочитанных</a>
+<li><a href="#6-meas-format">Формат данных</a>
+
+
+<li><a href="#7-main_ecg">7 Режим измерения ЭКГ</a>
+<li><a href="#7-meas-ecg-settings">Настройка расположения устройства</a>
+<li><a href="#7-meas-ecg-start">Включение режима записи ЭКГ</a>
+<li><a href="#7-meas-ecg-stop">Выключение режима записи ЭКГ</a>
+<li><a href="#7-meas-ecg-set">Настройка передачи записи ЭКГ онлайн</a>
+<li><a href="#7-ecg-time-long">Настройка длительности записи ЭКГ</a>
+<li><a href="#7-meas-format">Формат данных</a>
+
+<li><a href="#8-main_load">8 Загрузка полной записи ЭКГ/RR-интервалов</a>
+<li><a href="#8-load-set">Настройка передачи полной записи</a>
+<li><a href="#8-load-probe">Проверка наличия данных</a>
+<li><a href="#8-load-load">Включение режима загрузки записи данных</a>
+<li><a href="#8-load-stop">Выключение режима загрузки записи данных</a>
+<li><a href="#8-load-complete">Пометить запись как загруженную</a>
+<li><a href="#8-load-events">События при загрузке, формат данных</a>
+
+<li><a href="#9-main_message">9 Отправка сообщения</a>
+<li><a href="#9-meas-txt-send">Отправка сообщения в устройство</a>
+<li><a href="#9-meas-redirect-phone">Перехват входящего звонка</a>
+<li><a href="#9-meas-redirect-sms">Перехват sms-сообщения</a>
+<li><a href="#9-meas-redirect-not">Перехват уведомлений</a>
+<li><a href="#9-weather">Отправка сведений о погоде</a>
+
+<li><a href="#10-main_calibration">10 Калибровка</a>
+<li><a href="#10-bpm">Калибровка измерения давления</a>
+<li><a href="#10-bpm">Калибровка измерения сахара в крови</a>
+
+<li><a href="#11-main_fware">11 Прошивка прибора</a>
+</ul>
+</nav>
+
+<!------------------------------------------------------------- Main module   -->
+
+<h2 id="1-func">1 Описание модуля</h2>
+
+<p>Модуль <b>NeurosdkModule</b> - это модуль, реализующий функции взаимодействия с устройством Neyrox по протоколу BLE.</p> 
+<p>Соединение устанавливается по типу точка-точка. Дополнительных действий для подключения со стороны пользователя не требуется.</p>
+
+<p>Поддерживаются следующие виды устройств:<br>
+<ul><li><p>демо-устройство - программный имитатор в составе модуля;</p></li>
+<li><p>устройство Neyrox Pro.</p></li>
+</ul>
+</p>
+
+<p>MAC-адрес устройства определяется его заводским номером.</p>
+
+
+<!------   -->
+
+<h4 id="11-main frame">Структура модуля</h4>
+
+<p>Модуль имеет следующую структуру:<p>
+<ul><li><p><code>NeurosdkModule</code> - основной класс модуля, все взаимодействие осуществляется через него;</p></li>
+<li><p><code>NeuroCallbackValue</code> - интерфейс коллбека;</p></li>
+<li><p><code>NeurosdkActivityEventListener</code> - интерфейсы событий, которые реализуются на уровне активности;</p></li>
+<li><p><code>NeurosdkLifecycleEventListener</code> - интерфейсы событий, которые реализуются на уровне жизненного цикла приложения;</p></li>
+<li><p>папка <code>libs</code> - содержит нативный код для платформы android.</p></li>
+</ul>
+
+
+<p>Имя модуля - <code>NeurosdkModule</code>.</p>
+
+<p>Нативный класс, реализующий функционал на платформе android, - <code>NeurosdkModule.java</code>. Реализуется в пакете <code>neurosdkmodule-release.jar</code>. </p>
+
+<!------   -->
+
+<h4 id="12-main_load">Загрузка модуля</h4>
+
+<p>Для работы подключить к проекту модуль neurosdkmodule в виде модуля Android Studio или в скомпилированном виде neurosdkmodule.jar со всеми зависимостями (папкой jniLibs).</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">Пример в файле build.gradle:
+
+ ...
+ dependencies: {
+    ...
+    implementation files('libs/neurosdkmodule-release.jar')
+    implementation files('libs/neurosdk-release.jar')
+    implementation files('libs/rtk-bbpro-core-1.8.4.jar')
+    implementation files('libs/rtk-core-1.5.15.jar')
+    implementation files('libs/rtk-dfu-3.9.21.jar')
+    implementation files('libs/rtk-dfu-usb-1.0.5.jar')
+    implementation files('libs/rtk-usb-1.0.7.jar')
+     ...
+  }
+  ...
+</div></code></pre>
+
+
+<!------------------------------------------------------------- Init   -->
+
+<h2 id="2-main_init">2 Инициализация модуля</h2>
+
+<h4 id="2.1-init">Инициализация</h4>
+
+<p>Модуль должен инициализироваться в контексте приложения. Инициализация осуществляется методом <code>createInstance</code>. </p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">createInstance</span><span class="hljs-params">(<span class="hljs-keyword">@NotNull</span> NeurosdkContext appContext)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+<p>appContext - объект NeurosdkContext.</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">public interface NeurosdkContext {
+    Activity getCurrentActivity();
+    Context getApplicationContext();
+}
+</div></code></pre>
+
+<h6 id="example">Пример</h6>
+
+<p>Пример инициализации в классе, реализующем приложение.</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">public class MainApplication extends Application {
+
+    public MainApplication() {
+        super();
+    }
+
+    // создаем объекта, который хранит информацию о контексте 
+    private NeurosdkContext neurosdkContext = new NeurosdkContext() {
+        @Override
+        public Activity getCurrentActivity() {
+            return MainApplication.this.getCurrentActivity();
+        }
+
+        @Override
+        public Context getApplicationContext() {
+            return MainApplication.this.getApplicationContext();
+        }
+    };
+
+    private Activity currentActivity = null;
+
+    public Activity getCurrentActivity(){
+        return currentActivity;
+    }
+
+    public void setCurrentActivity(Activity mCurrentActivity){
+        this.currentActivity = mCurrentActivity;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        // инициализация модуля
+        NeurosdkModule.createInstance(neurosdkContext);
+        
+        // здесь же можно включить демо-режим 
+        NeurosdkModule.getInstance().neuroSetDemoMode(true);
+        
+        // здесь же можно включить сервисный режим 
+        NeurosdkModule.getInstance().neuroSetServiceMode(true, MyWorkFolder.isForegroundEnabled, 707, null);
+    }
+
+}
+</div></code></pre>
+
+<p><br>Активность должна реализовать обработчики событий <code>onActivityResult</code> и <code>onRequestPermissionsResult</code>, в них вызвать обработчики из NeurosdkModule. Пример:</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (NeurosdkModule.getInstance().getNeurosdkActivityEventListener().onRequestPermissionsResult(requestCode, permissions, grantResults))
+            return;
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (NeurosdkModule.getInstance().getNeurosdkActivityEventListener().onActivityResult(requestCode, resultCode, data))
+            return;
+    }
+</div></code></pre>
+
+
+<p><br>Модуль вещает о событиях, определен интерфейс <code>NeurosdkEvent</code>. Подписаться на события можно вызовом метода <code>addEventListener</code>, отписаться - вызовом метода <code>removeEventListener</code>.</p>
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().addEventListener(eventListener);
+
+NeurosdkModule.getInstance().removeEventListener();
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="2.2-demo"><br>Включение демо-режима</h4>
+
+<p>Модуль имеет возможность работы в режиме демо-устройства. Включение/выключение режима осуществляется методом <code>neuroSetDemoMode</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSetDemoMode</span><span class="hljs-params">(<span class="hljs-keyword">Boolean</span> enabled)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul><li><p>enabled - включение режима: true - включен, false - выключен.<br></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSetDemoMode(true);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="2.3-service"><br>Запуск в режиме сервиса</h4>
+
+<p>Взаимодействие с устройством может быть настроено в виде сервиса с помощью метода <code>neuroSetServiceMode</code>.</p>
+
+<p>Для android версии 7 и ниже сервис работает в режиме background.</p>
+<p>Для android версии 8 и выше сервис может работать в режиме background и в режиме foreground с выводом уведомления на экран.</p>
+<p>Если режим сервиса выключен, взаимодействие с устройством осуществляется в режиме background.</p>
+
+<p>В режиме background сервис жив, пока жива хотя бы одна активность приложения.<br>
+В режиме foreground сервис жив, пока живо приложение и отображается уведомление в операционной системе.</p>
+
+<p>Вид уведомления в будущем можно настроить (доработкой SDK). Пример уведомления по умолчанию для android 12:</p>
+<p><image id="img-foreground_notify_android12" src="img/foreground_notify_android12.png" height=200></p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSetServiceMode</span><span class="hljs-params">(<span class="hljs-keyword">Boolean</span>: enabled, <span class="hljs-keyword">Boolean</span> foreground, <span class="hljs-keyword">int</span> id, <span class="hljs-keyword">NeuroCallbackValue</span> cb)</span></span>
+</div></code></pre>
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul><li><p>enabled - включение режима: true - включен, false - выключен.</p></li>
+<li><p>foreground - запуск в режиме foreground: true - да, false - нет. Для android 7 и ниже значение параметра игнорируется.</p></li>
+<li><p>id - уникальный номер уведомления.</p></li>
+<li><p>cb - результат выполнения функции в виде объекта NeuroCallbackValue. 
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">interface NeuroCallbackValue {
+    void callback(Map<String, Object> params);
+}
+</div></code></pre>
+
+Данные в cb:<br>
+<code>"resultCode": int</code> - код ошибки:<br>
+- значение 0 - отправлен запрос на запуск сервиса (при включенном режиме);<br>
+- значение 1 - запрос на запуска сервиса не отправлен, работа в режиме без сервиса.</p></li>
+</ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"> NeurosdkModule.getInstance().neuroSetServiceMode(true, MyWorkFolder.isForegroundEnabled, 707, new NeuroCallbackValue() {
+            @Override
+            public void callback(Map<String, Object> params) {
+                if (params == null)
+                    return;
+                int resultCode = (int) params.get("resultCode");
+            }
+        });
+</div></code></pre>
+
+<p><b>Внимание!</b> Для получения данных от SDK не удаляйте подписчика на события от SDK при закрытии приложения.</p>
+
+
+<!-- -->
+
+<h4 id="2.4-platform"><br>Определение платформы, на которой запущено приложение</h4>
+
+<p>Определить на какой платформе запущено приложение (android, ios) можно с помощью метода <code>neuroGetPlatformInfo</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetPlatformInfo</span><span class="hljs-params">(<span class="hljs-keyword">NeuroCallbackValue</span> cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+
+<ul><li><p>cb - результат выполнения функци.<br>
+<code>"resultCode": int</code>. resultCode - код платформы:<br>
+- значение 0 - android;<br>
+- значение 1 - ios.</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetPlatformInfo(new NeuroCallbackValue() {
+            @Override
+            public void callback(Map<String, Object> params) {
+                if (params == null)
+                    return;
+                int resultCode = (int) params.get("resultCode");
+            }
+        });
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="2.5-permissions"><br>Запрос разрешений для работы приложения</h4>
+
+<p>При запуске приложения необходимо запросить разрешения. Это делается методом <code>neuroRequestPermissions</code>.<br>
+При вызове метода будет запрошено разрешение. Реакция пользователя на запрос проверяется автоматически. Когда пользователь отвечает на запрос, ему направляется следующее разрешение в списке. По окончании всей процедуры запроса разрешений формируется событие <code>NeurosdkEvent</code> с общим результатом выполнения процедуры.</p>
+
+<p>На телефоне с Андроид 10 и выше окно запроса разрешения может не вывестись, если пользователь отклонил запрос.
+В таком случае пользователь должен установить разрешение вручную в настройках приложения.<br>Окно настроек приложения выводится методом <code>neuroShowAppSettings</code>.</p>
+
+<p>Для разрешения уведомлений необходимо вызвать окно настройки уведомлений. Это делается с помощью метода <code>neuroShowAppNotificationsSettings</code>.</p>
+
+<p>Для разрешения работы с папками и файлами (нужно для прошивки устройства) на ОС 30 - 32 необходимо вызвать окно настройки доступа к файловой системе. Это делается с помощью метода <code>neuroShowMediaAccessSettings</code>.</p>
+
+
+<p>Запрашивается максимум разрешений, которые могут понадабиться для работы приложения.</p>
+<p>Перечень разрешений для android:</p>
+<ul><li><p>разрешения для работы с файловой системой;</p></li>
+<li><p>разрешения для работы со списком контактов;</p></li>
+<li><p>разрешения для отслеживания звонков;</p></li>
+<li><p>разрешения для работы в фоновом режиме.</p></li>
+</ul>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroRequestPermissions</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul><li><p>cb - результат выполнения функции: <br>
+<code>"resultCode": int</code>. resultCode - код ошибки:<br>
+- значение 0 - все разрешения установлены;<br>
+- значение 1 - есть разрешения, которые необходимо запросить. Отправлен запрос пользователю.</li></ul>
+
+
+<h6 id="desc">Описание события</h6>
+
+<p>Параметры события <code>NeurosdkEvent</code>:</p>
+<ul>
+<li><p>поле <code>"state": String</code> - значение <code>ON_REQUEST_END</code>;</p></li>
+<li><p>поле <code>"result" : int</code> - общий результат выполнения:<br>
+0 - все резрешения установлены;<br>
+1 - не все установлены.
+</p></li>
+</ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroRequestPermissions(null);
+</div></code></pre>
+
+
+<!-- --->
+<h4 id="2.6-permissions"><br>Проверка группы разрешений</h4>
+
+<p>Проверка включены ли разрешения конкретной группы осуществляется с помощью метода <code>neuroCheckPermissionsGroup</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroCheckPermissionsGroup</span><span class="hljs-params">(int type, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>type - номер группы разрешений:<br>
+1 - работа в фоновом режиме;<br>
+2 - доступ к телефону: использовать переадресацию вызова, читать статус вызова (нужно для отправки сообщения о звонке в устройство);<br>
+3 - список вызовов (нужно для отправки сообщения о звонке в устройство);<br>
+<s>4 - отправлять и просматривать sms (нужно для отправки сообщения sms в устройство);</s><br>
+5 - уведомления (для отправки уведомлений в устройство, для генерации собственных уведомлений, если потом понадобится) - резерв;<br>
+6 - доступ к контактам: чтение списка контактов;<br>
+7 - место хранения: доступ к файловой системе;<br>
+8 - разрешения для рыботы по блютуз;<br>
+9 - включена геолокация.
+</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"type": int</code>, <code>"resultCode": int</code>.<br>
+type - номер группы. resultCode - код ошибки:<br>
+- значение 0 - все разрешения группы установлены;<br>
+- значение 1 - есть разрешения, которые необходимо запросить;<br>
+- значение 2 - пользователю был отправлен запрос, он его отклонил.</p></li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">  // permissions group 
+  int PERMISSIONS_TYPE_FOREGROUND_SERVICE = 1;
+  int PERMISSIONS_TYPE_PHONE = 2;
+  int PERMISSIONS_TYPE_CALL_LOGS = 3;
+  int PERMISSIONS_TYPE_SMS = 4;
+  int PERMISSIONS_TYPE_NOTIFICATIONS = 5;
+  int PERMISSIONS_TYPE_CONTACTS = 6;
+  int PERMISSIONS_TYPE_READ_WRITE_EXTERNAL = 7;
+  int PERMISSIONS_TYPE_BLE = 8;
+  int PERMISSIONS_TYPE_GEO = 9;
+
+  NeurosdkModule.getInstance().neuroCheckPermissionsGroup(PERMISSIONS_TYPE_FOREGROUND_SERVICE, null);
+</div></code></pre>
+
+
+<h4 id="2.7-permissions"><br>Запрос группы разрешений</h4>
+
+<p>Запрос конкретной группы разрешений осуществляется методом <code>neuroRequestPermissionsGroup</code>.</p>
+
+<p>При вызове метода будут запрошены разрешения выбранной группы. Реакция пользователя на запрос проверяется автоматически. Когда пользователь отвечает на запрос, ему направляется следующее разрешение в списке. По окончании всей процедуры запроса разрешений формируется событие <code>NeurosdkEvent</code> с общим результатом выполнения.</p>
+
+<p>На телефоне с Андроид 10 и выше окно запроса разрешения может не вывестись, если пользователь отклонил запрос.
+В таком случае пользователь должен установить разрешение вручную в настройках приложения.<br>Окно настроек приложения выводится методом <code>neuroShowAppSettings</code>.</p>
+
+<p>Для разрешения уведомлений необходимо вызвать окно настройки уведомлений. Это делается с помощью метода <code>neuroShowAppNotificationsSettings</code>. При запросе разрешения смс, уведомления вызывается автоматически, если доступ к уведомлениям не предоставлен.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroRequestPermissionsGroup</span><span class="hljs-params">(int type, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>type - номер группы разрешений, аналогично параметру метода <code>neuroCheckPermissionsGroup</code>;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"type": int</code>, <code>"resultCode": int</code>.
+<br>type - номер группы разрешений;<br> resultCode - код ошибки:<br>
+- значение 0 - все разрешения группы установлены;<br>
+- значение 1 - отправлен запрос.</p></li></ul>
+
+<h6 id="desc">Описание события</h6>
+
+<p>Параметры события <code>NeurosdkEvent</code>:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>ON_REQUEST_GROUP_END</code>;</p></li>
+<li><p>поле <code>type</code> - номер группы разрешений;</p></li>
+<li><p>поле <code>result</code> - общий результат выполнения:<br>
+- значение 0 - все разрешения группы установлены;<br>
+- значение 1 - есть разрешения, которые необходимо запросить;<br>
+- значение 2 - пользователю был отправлен запрос, он его отклонил.
+</p></li>
+</ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">  NeurosdkModule.getInstance().neuroRequestPermissionsGroup(PERMISSIONS_TYPE_FOREGROUND_SERVICE, null);
+</div></code></pre>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">  if (event.state == 'ON_REQUEST_GROUP_END') {
+    if (event.result == RESULT_CODE_OK)
+      setPermGroupState("Разрешения " + event.type +" установлены");
+    else if (event.result == RESULT_CODE_TIMEOUT)
+      setPermGroupState("Разрешения " + event.type +" отклонены");
+    else
+      setPermGroupState("Разрешения " + event.type +" не установлены");
+    return;  
+  }
+</div></code></pre>
+
+
+
+<!-- --->
+<h4 id="2.8-permissions"><br>Вызов окна настроек приложения и окна настроек уведомлений</h4>
+
+<p>Вызов окна настроек приложения операционной системы осуществляется вызовом методом <code>neuroShowAppSettings</code>.  </p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroShowAppSettings</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>
+resultCode - код ошибки:<br>
+- значение 0 - окно успешно выведено;<br>
+- значение 1 - ошибка, окно не выведено.</p></li></ul>
+
+<p>При успешном открытии окна настроек приложения и возврате из него, формируется событие <code>NeurosdkEvent</code>, у которого значение поля <code>state</code> - <code>ON_RETURN_FROM_SETTINGS</code>.</p>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroShowAppSettings(cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<p>Вызов окна настроек уведомлений операционной системы осуществляется вызовом методом <code>neuroShowAppNotificationsSettings</code>.  </p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroShowAppNotificationsSettings</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - окно успешно выведено;<br>
+- значение 1 - ошибка, окно не выведено.</p></li></ul>
+
+<p>При успешном открытии окна настроек приложения и возврате из него, формируется событие <code>NeurosdkEvent</code>, у которого значение поля <code>state</code> - <code>ON_RETURN_FROM_SETTINGS</code>.</p>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroShowAppNotificationsSettings(cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<p>Вызов окна настроек доступа к файловой системе операционной системы осуществляется вызовом методом <code>neuroShowMediaAccessSettings</code>.  </p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroShowMediaAccessSettings</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - окно успешно выведено;<br>
+- значение 1 - ошибка, окно не выведено.</p></li></ul>
+
+<p>При успешном открытии окна настроек приложения и возврате из него, формируется событие <code>NeurosdkEvent</code>, у которого значение поля <code>state</code> - <code>ON_RETURN_FROM_SETTINGS</code>.</p>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroShowMediaAccessSettings(cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="2.9-log"><br>Включение режима записи лога</h4>
+
+<p>Модуль имеет возможность записи лога данных от устройства. Включение, выключение режима осуществляется методом <code>neuroSetLogEnabled</code>. По умолчанию запись лога выключена.</p>
+
+<p>Лог пишется в папку <code>Documents/neyrox_logs</code>. Имя файла - "log_дата.txt".<br>
+Для записи лога должны быть включены разрешения на работу с файловой системой.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSetLogEnabled</span><span class="hljs-params">(Boolean enabled)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul><li><p>enabled - включение режима: true - включен, false - выключен.<br></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSetLogEnabled(true);
+</div></code></pre>
+
+
+<!------------------------------------------------------------- Search   -->
+
+<h2 id="3-main_search">3 Доступ к устройству</h2>
+
+<h4 id="3-start-search">Поиск устройства</h4>
+
+<p>Поиск устройства осуществляется вызовом метода <code>neuroStartSearch</code>.<br>
+Перед поиском проверяется наличие необходимых для работы разрешений, включение Bluetooth, геолокации. При невозможности запустить поиск возвращается код ошибки с кодом причины (первая причина незапуска), автоматически запрашивается разрешение или действие пользователя. Если пользователь согласился с разрешением или выполнил действие на включение Bluetooth/геолокации, следующий запрос пользователю будет направлен автоматически. Запросы будут выдаваться пользователю до тех пор, пока пользователь не отклонит запрос или поиск успешно не стартует.</p>
+<p>Результат запроса пользователю приходит в виде события <code>NeurosdkEvent</code>. Параметры события:<br>
+- поле <code>state</code> - значение <code>ON_ERROR_START_SEARCH</code>;<br>
+- поле <code>result</code> - код результата (аналогично Callback в методе neuroStartSearch);<br>
+- поле <code>error</code> - код ошибки (аналогично Callback в методе neuroStartSearch).<br>
+</p>
+
+<p>При успешном запуске поиска приходит событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_START_SEARCH</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroStartSearch</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul><li><p>cb - результат выполнения функции вида<br>
+<code>"resultCode": int</code>, <code>"errorCode": int</code>. 
+<br><code>resultCode</code> - целое число, код результата:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке (ожидается реакция пользователя);<br>
+- значение 2 - при отказе пользователя от выполнения ожидаемых действий. 
+<br><code>errorCode</code> - целое число, код ошибки:<br>
+- значение 0 - успешно;<br>
+- значение 1 - BLE не поддерживается устройством. С этим ничего нельзя сделать, подключение по Bluetooth к прибору работать не будет;
+- значение 2 - Bluetooth выключен, отправлен запрос на включение;<br>
+- значение 3 - не хватает разрешения COARSE_LOCATION, отправлен запрос;<br>
+- значение 4 - не хватает разрешения FINE_LOCATION, отправлен запрос;<br>
+- значение 5 - не хватает разрешения BACKGROUND_LOCATION, отправлен запрос;<br>
+- значение 6 - геолокация выключена, отправлен запрос на включение через окно настроек;<br>
+- значение 7 - не хватает разрешения NEARBY_DEVECIES, отправлен запрос (для Андроид 13);<br>
+- значение 8 - не хватает разрешения BLUETOOTH_CONNECT, отправлен запрос (для Андроид 13).<br>
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">  // general sdk codes 
+  const RESULT_CODE_OK = 0;
+  const RESULT_CODE_FAILED = 1;
+  const RESULT_CODE_TIMEOUT = 2;
+
+  // error codes for search method 
+  const ERROR_CODE_NO_ERRORS = 0;
+  const ERROR_CODE_BLE_IS_NOT_SUPPORTED = 1;
+  const ERROR_CODE_REQUEST_BLE_ENABLE = 2;
+  const ERROR_CODE_REQUEST_ACCESS_COARSE_LOCATION = 3;
+  const ERROR_CODE_REQUEST_ACCESS_FINE_LOCATION = 4;
+  const ERROR_CODE_REQUEST_ACCESS_BACKGROUND_LOCATION = 5;
+  const ERROR_CODE_REQUEST_LOCATION_SOURCE_SETTINGS = 6;
+  
+  function onGotSearchCb(resultCode: number, errorCode: number){
+    console.log(`Start search: got result code ${resultCode}, error code ${errorCode}`);
+    if (resultCode == RESULT_CODE_OK){
+      console.log("Поиск успешно запущен");
+      return;
+    }
+    if (resultCode == RESULT_CODE_TIMEOUT){
+      console.log("Пользователь отклонил запрос");
+      return;
+    }
+    if (errorCode == ERROR_CODE_BLE_IS_NOT_SUPPORTED){ // ERROR_CODE_BLE_IS_NOT_SUPPORTED
+      // nothing to do with this error
+      console.log("BLE IS NOT SUPPORTED :(");
+      return;
+    }
+    if (errorCode == ERROR_CODE_REQUEST_BLE_ENABLE){
+      console.log("Запрос включения BLE");
+      return;
+    }
+    if (errorCode == ERROR_CODE_REQUEST_ACCESS_COARSE_LOCATION){
+      console.log("Запрос COARSE_LOCATION");
+      return;
+    }
+    if (errorCode == ERROR_CODE_REQUEST_ACCESS_FINE_LOCATION){
+      console.log("Запрос FINE_LOCATION");
+      return;
+    }
+    if (errorCode == ERROR_CODE_REQUEST_ACCESS_BACKGROUND_LOCATION){
+      console.log("Запрос BACKGROUND_LOCATION");
+      return;
+    }
+    if (errorCode == ERROR_CODE_REQUEST_LOCATION_SOURCE_SETTINGS){
+      console.log("Поиск успешно запущен");
+      return;
+    }
+  }
+  
+  ...
+
+ NeurosdkModule.getInstance().neuroStartSearch(cb);
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="3-stop-search"><br>Останов поиска</h4>
+
+<p>Поиск может быть остановлен вызовом метода <code>neuroStopSearch</code>.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroStopSearch</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul><li><p>cb - результат выполнения функции вида<br>
+<code>"resultCode": int</code>. resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroStopSearch(cb);
+</div></code></pre>
+
+<p>При нажатии кнопки Стоп функция Автоподключения к устройству выключается.</p>
+
+<p>При успешном останове поиска приходит событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_STOP_SEARCH</code>.<br>
+</p>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">
+      if (event.state == 'ON_STOP_SEARCH') {
+        console.log('On stop search')
+      }
+    });
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="3-device-list"><br>Получение списка устройств</h4>
+
+<p>Информация о найденном устройстве передается в <code>NeurosdkEvent</code>. Параметры события:<br>
+- поле <code>state</code> - значение <code>ON_FOUND</code>;<br>
+- поле <code>device</code> - значение MAC-адрес устройства;<br>
+- поле <code>devname</code> - значение Имя устройства.<br>
+- поле <code>list</code> -  список всех найденных устройств в формате JSON-строки.<br>
+</p>
+
+<p>JSON-строка имеет следующую структуру: </p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title">"list":</span>{
+</div><div class="hljs-line"> [
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "id":<span class="hljs-number">0</span>, <span class="hljs-comment ">// целое число</span>
+</div><div class="hljs-line">    "device":<span class="hljs-number">"Neyrox Pro 142F"</span>, <span class="hljs-comment ">// имя устройства</span>
+</div><div class="hljs-line">    "device":<span class="hljs-number">"05:28:00:00:14:2F"</span> <span class="hljs-comment ">// MAC-адрес устройства</span>
+</div><div class="hljs-line">   }, ...
+</div><div class="hljs-line"> ]
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">  if (event.state == 'ON_FOUND') {
+        console.log('ON_FOUND: device: ' + event.device + ' name: ' + event.devname);
+        console.log('list: ' + event.list);
+        let data = [];
+        try {
+          data = JSON.parse(event.list);
+        } catch (err) {
+          console.log('Invalid JSON string');
+        }
+      }
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="3-connect"><br>Подключение к найденному устройству</h4>
+
+<p>Подключиться можно к устройству, которое было найдено в процессе поиска. При остановке поиска список найденных устройств из памяти приложения не очищается.</p>
+<p>Подключение к устройству осуществляется вызовом метода <code>neuroConnectDevice</code>.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroConnectDevice</span><span class="hljs-params">(String deviceMAC, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>deviceMAC - MAC-адрес устройства;</p></li>
+<li><p>cb - результат выполнения функции,<br> 
+<code>"dev": String</code>, <code>"resultCode": int</code>.<br>
+dev - MAC-адрес устройства, resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке доступа к устройству и установке соединения.</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroConnectDevice(deviceMAC, cb);
+</div></code></pre>
+
+<p>При подключении к устройству реализуется следующая последовательность действий:<br>
+1. Считывается информация о сервисах и характеристиках устройства.<br>
+При успешном доступе к устройству модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_START_GAT</code>.<br>
+При ошибке доступа к устройству модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_ERROR_GAT</code>. resultCode принимает значение 1.<br>
+2. Проверяется наличие сервисов и характеристик в таблице GAT.<br>
+Если устройство не нашего типа, resultCode принимает значение 1.<br>
+3. Реализуется установка соединения.<br>
+При успешной установке соединения модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_CONNECTED</code>.
+ </p>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">      if (event.state == 'ON_START_GAT') {
+        console.log('On start GAT')
+      }
+      if (event.state == 'ON_ERROR_GAT') {
+        console.log('On error GAT')
+      }
+      if (event.state == 'ON_CONNECTED') {
+        console.log('Connected')
+      }
+    });
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="3-autoconnect"><br>Автоподключение</h4>
+
+<p>Если включено автоподключение, приложение самостоятельно запускает поиск (при наличии разрешений и всех условий для успешного запуска) и при обнаружении устройства с заданным MAC-адресом подключается к нему.</p>
+
+<p>Включение/выключение функции автоподключения осуществляется вызовом метода <code>neuroSettingAutoConnect</code>.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingAutoConnect</span><span class="hljs-params">(boolean enable, String sMAC, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>enable - если значение true, атоподключение включено, если false - выключен;</p></li>
+<li><p>mac - MAC-адрес устройства, строка;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>
+resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingAutoConnect(true, deviceMAC, cb);
+</div></code></pre>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingAutoConnect(false, "", cb);
+</div></code></pre>
+
+<p><br>Проверить, включен ли функционал, можно узнать с помощью метода <code>neuroGetSettingAutoConnect</code>.</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingAutoConnect</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>enable - если значение true, атоподключение включено, если false - выключен;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, <code>"enabled": boolean</code>, <code>"mac": String</code>).<br>
+resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+enabled - если значение true, включен; если false - выключен;<br>
+mac - MAC-адрес устройства.
+</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingAutoConnect(cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="3-disconnect"><br>Отключение от устройства</h4>
+
+<p>Отключение от устройства осуществляется вызовом метода <code>neuroDisconnect</code>.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroDisconnect</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>. resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroDisconnect(cb);
+</div></code></pre>
+
+<p>При отключении от устройства модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_DISCONNECTED</code>.</p>
+
+
+
+
+<!------------------------------------------------------------- Device Info   -->
+
+<h2 id="4-main_device">4 Информация об устройстве</h2>
+
+
+
+<h4 id="4-is-connected">Узнать, подключено ли устройство</h4>
+
+<p>Узнать, подключено ли устройство, можно с помощью метода <code>neuroIsDeviceConnected</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroIsDeviceConnected</span><span class="hljs-params">(cb: <span class="hljs-keyword">Callback</span>)</span></span>
+</div></code></pre>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, <code>"connected": boolean</code>.<br>
+resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+connected - состояние: true - подключено, false - нет.
+</li></ul>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">neuroIsDeviceConnected</span><span class="hljs-params">()</span></span>
+</div></code></pre>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroIsDeviceConnected(cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="4-main_info"><br>Состояние устройства</h4>
+
+<p>Состояние подключенного устройства можно получить с помощью метода <code>neuroGetDeviceInfo</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetDeviceInfo</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, <code>"info": Map</code>.<br>
+resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Возвращается, если устройство не подключено.<br>
+info - список параметров устройства.
+</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetDeviceInfo(cb);
+</div></code></pre>
+
+<p>Список параметров <code>info</code> имеет следующую структуру.</p>
+
+<ul>
+<li><p>поле <code>devName</code> - имя устройства, строка;</p></li>
+<li><p>поле <code>devMAC</code> - MAC-адрес устройства, строка;</p></li>
+<li><p>поле <code>version</code> содержит номер версии прошивки устройства, строка;</p></li>
+<li><p>поле <code>batValue</code> - уровень заряда батареи, число от 0 до 100;</p></li>
+<li><p>поле <code>batState</code> - состояние батареи, число:<br>
+- 0 - неизвестно;<br>
+- 1 - нормальный уровень заряда;<br>
+- 2 - низкий;<br>
+- 3 - батарея заряжается;<br>
+- 4 - полный заряд.<br>
+</p></li>
+<li><p>поле <code>skinState</code> - наличие контакта с кожей (только для устройства с микросхемой ЭДА), число:<br>
+- 0 - неизвестно;<br>
+- 1 - есть контакт;<br>
+- 2 - нет контакта.<br>
+</p></li>
+<li><p>поле <code>skinIsWet</code> - признак сухости кожи, boolean. При значении false кожа сухая.<br>
+Сухость кожи проверяется при наличии микросхемы ЭДА и наличия контакта с кожей.</p></li>
+</ul>
+
+
+<!-- -->
+
+<h4 id="4-main_cap"><br>Возможности прибора</h4>
+
+<p>Перечень функционала устройства можно узнать методом <code>neuroGetDeviceCapabilities</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetDeviceCapabilities</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, <code>"info": Map</code>.<br>
+resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Возвращается, если устройство не подключено.<br>
+info - список возможностей устройства.
+</li></ul>
+
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetDeviceCapabilities(cb);
+</div></code></pre>
+
+<p>Список параметров <code>info</code> имеет следующую структуру.</p>
+
+
+<ul>
+<li><p>поле <code>measZ</code> - возможность измерения показателей ЭДА, boolean; true - есть, false - нет;</p></li>
+<li><p>поле <code>measTemp</code> - возможность измерения температуры, boolean;</p></li>
+<li><p>поле <code>measHb</code> - возможность измерения пульса, boolean;</p></li>
+<li><p>поле <code>measSpo</code> - возможность измерения кислорода в крови, boolean;</p></li>
+<li><p>поле <code>measEcg</code> - возможность измерения ЭКГ, boolean;</p></li>
+<li><p>поле <code>measMoves</code> - возможность измерения количества движений, boolean;</p></li>
+<li><p>поле <code>measBPM</code> - возможность измерения давления, boolean;</p></li>
+<li><p>поле <code>measSteps</code> - возможность измерения шагов, boolean;</p></li>
+<li><p>поле <code>measGlu</code> - возможность измерения глюкозы, boolean;</p></li>
+<li><p>поле <code>measBreath</code> - возможность измерения дыхания, boolean;</p></li>
+<li><p>поле <code>measHRV</code> - возможность измерения ВСР, boolean;</p></li>
+<li><p>поле <code>hasScreen</code> - наличие сенсорного экрана, boolean;</p></li>
+<li><p>поле <code>hasBPMCalibration</code> - поддерживает функцию калибровки измерения давления, boolean;</p></li>
+<li><p>поле <code>hasGluCalibration</code> - поддерживает функцию калибровки измерения глюкозы, boolean.</p></li>
+</ul>
+
+
+
+<!------------------------------------------------------------- Device settings   -->
+
+<h2 id="5-main_settings">5 Настройка устройства</h2>
+
+
+
+<h4 id="5-lang">Настройка языка</h4>
+
+<p>Устройство с сенсорным экраном имеет возможность настройки языка интерфейса. Настройка осуществляется методом <code>neuroSettingLanguage</code>.</p>
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingLanguage</span><span class="hljs-params">(int langType, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>lang - язык, число:<br>
+- 0 - английский;<br>
+- 1 - китайский.
+</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку языка.
+</li></ul>
+
+<p>Перечень поддерживаемых языков зависит от прошивки устройства.</p>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"> NeurosdkModule.getInstance().neuroSettingLanguage(0, cb);
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="5-datetime"><br>Настройка даты и времени</h4>
+
+<p>Настройка даты и времени устройства производится автоматически при подключении к устройству.</p>
+
+
+
+
+
+<!-- -->
+
+<h4 id="5-interval"><br>Настройка периода измерения</h4>
+
+<p>Период измерения показателя может быть изменен вызовом метода <code>neuroSettingMeasureInterval</code>.</p>
+
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingMeasureInterval</span><span class="hljs-params">(int parameter, int intervalMin, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>param - параметр:<br>
+- 0 - ЭДА;<br>
+- 1 - температура;<br>
+- 2 - пульс;<br>
+- 4 - кислород в крови;<br>
+- 5 - количество движений;<br>
+- 6 - давление;<br>
+- 7 - количество шагов;<br>
+- 8 - глюкоза;<br>
+- 9 - частота дыхания.
+</p></li>
+<li><p>intervalMin - интервал в мин, число.</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+</li></ul>
+
+<p>Перечень поддерживаемых в настройке параметров зависит от прошивки устройства.</p>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingMeasureInterval(1, 5, cb);
+</div></code></pre>
+
+
+<p><br></p>
+<p>Узнать период измерения показателя можно с помощью метода <code>neuroGetSettingMeasureInterval</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingMeasureInterval</span><span class="hljs-params">(int parameter, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>param - параметр, см. описание на метод neuroSettingMeasureInterval</p></li>
+<li><p>intervalMin - интервал в мин, число.</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, <code>"interval": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+<br>interval - период измерения, в мин, число.
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"> NeurosdkModule.getInstance().neuroGetSettingMeasureInterval(1, cb);
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="5-user"><br>Настройка данных пользователя</h4>
+
+<p>Данные пользователя передаются в устройство с помощью метода <code>neuroSettingUserInfo</code>.</p>
+
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingUserInfo</span><span class="hljs-params">(int height, int weight, int sex, int age, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>height - рост в см, число от 50 до 255;</p></li>
+<li><p>weight - вес в кг, число;</p></li>
+<li><p>sex - пол, число: 0 - мужской, 1 - женский;</p></li>
+<li><p>age - возраст, число от 1 до 150.</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingUserInfo(165, 65, 1, 35,cb);
+</div></code></pre>
+
+
+<!------------------------------------------------------------- Device data   -->
+
+<h2 id="6-main_meas">6 Данные измерения</h2>
+
+
+<p>Устройство сохраняет данные измерения во внутреннюю память. При подключении к нему, устройство передает накопленные данные в приложение.<br>
+Если соединение не рвется, а в устройстве появляются новые данные, они передаются в приложение с некоторой задержкой (зависит от прошивки устройства). Чтобы не ждать прихода данных, данные могут быть запрошены принудительно вызовом метода <code>neuroMeasureSync</code>.</p>
+
+<p>При подключении к устройству модуль передает весь полученный набор данных, а далее передает в приложение только новые данные. Полный набор данных может быть запрошен из устройства повторно вызовом метода <code>neuroGetHistory</code>.</p>
+
+<p>Если данные обработаны, их можно пометить в приборе как прочитанные. В таком случае, при повторном установке соединения, помеченные данные не будут загружены (на экране устройства они останутся). Это осуществляется методом <code>neuroDeleteHistory</code>.</p>
+
+
+<!-- -->
+
+<h4 id="6-meas-sync"><br>Запрос последних данных из устройства (сихронизация данных)</h4>
+
+<p>Данные могут быть запрошены из прибора принудительно вызовом метода <code>neuroMeasureSync</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroMeasureSync</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroMeasureSync(cb);
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="6-meas-get-history"><br>Запрос всех данных из устройства</h4>
+
+
+<p>Полный набор данных может быть запрошен вызовом метода <code>neuroGetHistory</code>.</p>
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetHistory</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetHistory(cb);
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="6-meas-delete-history"><br>Пометка данных как прочитанных</h4>
+
+<p>Данные могут быть помечены как прочитанные в устройстве вызовом метода <code>neuroDeleteHistory</code>. Помеченные данные не передаются от устройства, хотя и отображаются на экране. Делать это рекомендуется после того, как были приняты все данные от устройства (по приходу события <a href="#6-meas-format">ON_MEAS_END</a>), если данные от устройства были успешно сохранены.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroDeleteHistory</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroDeleteHistory(cb);
+</div></code></pre>
+
+
+
+
+
+<!-- -->
+
+<h4 id="6-meas-format"><br>Формат данных</h4>
+
+
+<p>Данные измерения передаются в приложение в виде событий <code>NeurosdkEvent</code>. Параметры события:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>ON_MEAS</code>;</p></li>
+<li><p>поле <code>list</code> - список измерений в форате JSON-строки.</p></li>
+</ul>
+<p>По окончании передачи потока данных формируется событие <code>NeurosdkEvent</code>, у которого поле <code>state</code> имеет значение <code>ON_MEAS_END</code>.</p>
+
+<p>JSON-строка имеет следующую структуру: </p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title">"list":</span>{
+</div><div class="hljs-line"> [
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "param":<span class="hljs-number">1</span>, <span class="hljs-comment ">// целое число</span>
+</div><div class="hljs-line">    "value":<span class="hljs-number">34.4</span>, <span class="hljs-comment ">// вещественное число</span>
+</div><div class="hljs-line">    "time":<span class="hljs-number">1703755740000</span> <span class="hljs-comment ">// целое число</span>
+</div><div class="hljs-line">   }, ...
+</div><div class="hljs-line"> ]
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<ul>
+<li><p>поле <code>param</code> - номер параметра:<br>
+1 - температура - град.;<br>
+2 - пульс - в уд/мин;<br>
+4 - кислород в крови - в %;<br>
+5 - количество движений - в ед.;<br>
+6 - давление - в мм. рт. ст.;<br>
+7 - количество шагов - в ед.;<br>
+8 - глюкоза - в ммоль/л;<br>
+9 - частота дыхания - в rpm;<br>
+17 - значение ВСР, посчитанное по PPG-сигналу - в  мс;<br>
+20 - уровень стресса - нВатт.<br>
+<li><p>поле <code>value</code> - значение параметра для параметров кроме давления.
+</p></li>
+
+<li><p>поле <code>value_sys</code> - систолическое давление;</p></li>
+<li><p>поле <code>value_dia</code> - диастолические давление;</p></li>
+<li><p>поле <code>time</code> - время измерения, в мс;</p></li>
+</ul>
+
+<h6 id="example">Пример JSON-строки</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">{"list":[{"param":4,"value":98,"time":1703755740000},{"param":2,"value":78,"time":1703755740000},{"param":9,"value":16,"time":1703755740000},{"param":7,"value":0,"time":1703755740000},{"param":8,"value":7.9,"time":1703755740000},{"param":6,"value_sys":103,"value_dia":70,"time":1703755740000},{"param":4,"value":97,"time":1703755786000},{"param":7,"value":0,"time":1703755786000},{"param":4,"value":98,"time":1703755894000},{"param":2,"value":74,"time":1703755894000},{"param":9,"value":15,"time":1703755894000},{"param":7,"value":0,"time":1703755894000},{"param":8,"value":8,"time":1703755894000},{"param":6,"value_sys":100,"value_dia":69,"time":1703755894000},{"param":4,"value":98,"time":1703755937000},{"param":2,"value":77,"time":1703755937000},{"param":9,"value":16,"time":1703755937000},{"param":7,"value":0,"time":1703755937000},{"param":8,"value":7.9,"time":1703755937000},{"param":6,"value_sys":100,"value_dia":68,"time":1703755937000},{"param":4,"value":98,"time":1703756009000},{"param":2,"value":73,"time":1703756009000},{"param":9,"value":15,"time":1703756009000},{"param":7,"value":0,"time":1703756009000},{"param":8,"value":8,"time":1703756009000},{"param":6,"value_sys":99,"value_dia":68,"time":1703756009000},{"param":4,"value":98,"time":1703756071000},{"param":2,"value":80,"time":1703756071000},{"param":9,"value":16,"time":1703756071000},{"param":7,"value":0,"time":1703756071000},{"param":8,"value":8,"time":1703756071000},{"param":6,"value_sys":103,"value_dia":70,"time":1703756071000},{"param":4,"value":98,"time":1703756138000},{"param":2,"value":72,"time":1703756138000},{"param":9,"value":14,"time":1703756138000},{"param":7,"value":0,"time":1703756138000},{"param":8,"value":7.9,"time":1703756138000},{"param":6,"value_sys":98,"value_dia":68,"time":1703756138000},{"param":4,"value":98,"time":1703756184000},{"param":2,"value":74,"time":1703756184000},{"param":9,"value":15,"time":1703756184000},{"param":7,"value":0,"time":1703756184000},{"param":8,"value":7.9,"time":1703756184000},{"param":6,"value_sys":99,"value_dia":68,"time":1703756184000},{"param":4,"value":98,"time":1703756261000},{"param":2,"value":74,"time":1703756261000},{"param":9,"value":15,"time":1703756261000},{"param":7,"value":0,"time":1703756261000},{"param":8,"value":8.1,"time":1703756261000},{"param":6,"value_sys":100,"value_dia":69,"time":1703756261000},{"param":4,"value":98,"time":1703756315000},{"param":2,"value":77,"time":1703756315000},{"param":9,"value":16,"time":1703756315000},{"param":7,"value":0,"time":1703756315000},{"param":8,"value":8,"time":1703756315000},{"param":6,"value_sys":102,"value_dia":68,"time":1703756315000},{"param":4,"value":98,"time":1703756381000},{"param":2,"value":74,"time":1703756381000},{"param":9,"value":15,"time":1703756381000},{"param":7,"value":0,"time":1703756381000},{"param":8,"value":7.9,"time":1703756381000},{"param":6,"value_sys":101,"value_dia":68,"time":1703756381000},{"param":4,"value":98,"time":1703756418000},{"param":2,"value":77,"time":1703756418000},{"param":9,"value":16,"time":1703756418000},{"param":7,"value":0,"time":1703756418000}]}
+</div></code></pre>
+
+
+<h6 id="example">Пример обработки события</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">
+// Обработка событий с использованием NeurosdkEventListener
+NeurosdkModule.getInstance().addEventListener(listener);
+
+
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="6-meas-start"><br>Включение режима разового измерения</h4>
+
+
+<p>Разовое измерение может быть запущено методом <code>neuroParamMeasureStart</code>.</p>
+
+<h6 id="desc"><br>Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroParamMeasureStart</span><span class="hljs-params">(int parameter, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>param - номер параметра:<br>
+1 - температура - град.;<br>
+2 - пульс - в уд/мин;<br>
+4 - кислород в крови - в %;<br>
+5 - количество движений - в ед.;<br>
+6 - давление - в мм. рт. ст.;<br>
+8 - глюкоза - в ммоль/л;<br>
+9 - частота дыхания - в rpm;<br>
+17 - ВСР по PPG-сигналу - в  мс;<br>
+20 - уровень стресса - нВатт.<br>
+</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "parameter" : int.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено или устройство не поддерживает настройку.
+<br>parameter - номер параметра.
+</li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroParamMeasureStart(1, cb);
+</div></code></pre>
+
+
+<!------------------------------------------------------------- Device ECG   -->
+
+<h2 id="7-main_ecg">7 Режим измерения ЭКГ</h2>
+
+
+
+<!-- -->
+
+<h4 id="7-meas-ecg-start"><br>Включение режима записи ЭКГ</h4>
+
+
+<p>Включение режима записи ЭКГ осуществляется вызовом метода <code>neuroEcgMeasureStart</code>.</p>
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroEcgMeasureStart</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroEcgMeasureStart(cb);
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="7-meas-ecg-stop"><br>Выключение режима записи ЭКГ</h4>
+
+
+<p>Выключение режима записи ЭКГ осуществляется вызовом метода <code>neuroEcgMeasureStop</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroEcgMeasureStop</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>resultCode - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroEcgMeasureStop(cb);
+</div></code></pre>
+
+<p>Останов записи ЭКГ может быть инициирован со стороны прошивки. При выключении записи формируется событие  <code>neuroSdkEvent</code>. Параметры события:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>ON_ECG_STOPPED</code>.</p></li>
+</ul></p>
+
+<!-- -->
+
+<h4 id="7-meas-ecg-set"><br>Настройка передачи записи ЭКГ онлайн</h4>
+
+<p>Настройка выдачи записи ЭКГ онлайн осуществляется вызовом метода <code>neuroSettingEcgMeasureOnline</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingEcgMeasureOnline</span><span class="hljs-params">(int freqOnline, int periodMs, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>freq - частота данных, Гц (число от 10 до 250 Гц);</pi></li>
+<li><pi>period_ms - период выдачи пачки данных, мс (число от 200 до 5000);</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "setFreq": int, "setPeriodMs": int.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+setFreq - целое число, фактическая частота выдачи, Гц;<br>
+setPeriodMs - целое число, фактический период, мс.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingEcgMeasureOnline( 250, 500, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="7-ecg-time-long"><br>Настройка длительности записи ЭКГ</h4>
+
+
+<p>Настройка длительности записи ЭКГ осуществляется вызовом метода <code>neuroSettingEcgTimeLongMin</code>.</p>
+<p>Настройка сохраняется при перезапуске приложения.</p>
+<p>Поддержка настройки (реальное применение) зависит от прошивки устройства.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingEcgTimeLongMin</span><span class="hljs-params">(int timeLongMin, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>time_min - длительность записи, мин;</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "timeMin": int<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+timeMin - целое число, установленное значение.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingEcgTimeLongMin(3, cb);
+</div></code></pre>
+
+
+<p><br>Узнать заданную длительность записи ЭКГ можно с помощью метода <code>neuroGetSettingEcgTimeLongMin</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingEcgTimeLongMin</span><span class="hljs-params">(NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "timeMin": int<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+timeMin - целое число, установленное значение длительности записи ЭКГ, в мин.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingEcgTimeLongMin(cb);
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="7-meas-format"><br>Формат данных</h4>
+
+
+<p>Данные ЭКГ передаются в реальном времени с событием <code>NeurosdkEvent</code>. Параметры события:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>ON_ECG</code>;</p></li>
+<li><p>поле <code>list</code> - набор данных в виде JSON-строки.</p></li>
+</ul>
+
+<p>JSON-строка имеет следующую структуру:</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title">"list":</span>{
+</div><div class="hljs-line"> [
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "data_type":<span class="hljs-number">1</span>, <span class="hljs-comment ">// тип данных - RR-интервал</span>
+</div><div class="hljs-line">    "rr_value":<span class="hljs-number">620</span>, <span class="hljs-comment ">//значение интервала, в мс, число</span>
+</div><div class="hljs-line">    "rr_time":<span class="hljs-number">62224454654232</span> <span class="hljs-comment ">//время измерения, мс</span>
+</div><div class="hljs-line">   }, 
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "data_type":<span class="hljs-number">2</span>, <span class="hljs-comment ">// тип данных - данные ЭКГ</span>
+</div><div class="hljs-line">    "freq":<span class="hljs-number">250</span>, <span class="hljs-comment ">//частота данных в Гц, число</span>
+</div><div class="hljs-line">    "ecg":<span class="hljs-number">[1024, 320, 250, ...]</span> <span class="hljs-comment ">//массив значений напряжения в мВ, числа</span>
+</div><div class="hljs-line">   }, 
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "data_type":<span class="hljs-number">3</span>, <span class="hljs-comment ">// тип данных - статус ЭКГ</span>
+</div><div class="hljs-line">    "status_off":<span class="hljs-number">false</span> <span class="hljs-comment ">// признак отсутствия контакта (человек прикладывает палец к выводу на корпусе устройства): true - нет контакта, false - контакт есть</span>
+</div><div class="hljs-line">   }, 
+</div><div class="hljs-line">   ...
+</div><div class="hljs-line"> ]
+</div><div class="hljs-line">}
+</div></code></pre>
+
+
+
+<p><br></p>
+
+<!------------------------------------------------------------- Load full data  -->
+
+<h2 id="8-main_load">8 Загрузка полной записи ЭКГ/RR-интервалов</h2>
+
+
+<!-- -->
+
+
+<h4 id="8-load-set">Настройка передачи полной записи</h4>
+
+<p>Настройка передачи полной записи ЭКГ, RR-интервалов осуществляется вызовом метода <code>neuroSettingDataLoad</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingDataLoad</span><span class="hljs-params">(int packSize, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>pack_size - максимальное количество отсчетов (точек измерения) в пачке данных (число от 1 до 5000); по умолчанию 50;</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "pack_size": int<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+pack_size - целое число, фактический максимальный размер пачки данных.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingDataLoad( 1000, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="8-load-probe"><br>Проверка наличия данных</h4>
+
+
+
+<p>Узнать, есть ли записи в памяти SDK/устройства можно методом <code>neuroDataLoadProbe</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroDataLoadProbe</span><span class="hljs-params">(int type, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>type - тип данных: 0 -  ЭКГ, 1 - RR-интервалы;</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "type": int, "cnt": int<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+type - тип данных: 0 -  ЭКГ, 1 - RR-интервалы;<br>
+cnt - целое число, количество доступных записей.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroDataLoadProbe(0, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="8-load-load"><br>Включение режима загрузки записи данных</h4>
+
+
+<p>Включение режима загрузки записи данных осуществляется методом <code>neuroDataLoadStart</code>.</p>
+<p><b>Внимание!</b> Нельзя одновременная записывать ЭКГ (онлайн) и делать загрузку полной записи. Включайте режим загрузки после записи ЭКГ онлайн.</p>
+
+<h6 id="desc"><br>Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroDataLoadStart</span><span class="hljs-params">(int type, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>type - тип данных: 0 -  ЭКГ, 1 - RR-интервалы;</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "type": int<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+type - тип данных.<br>
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroDataLoadStart( 0, cb);
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="8-load-stop"><br>Выключение режима загрузки записи данных</h4>
+
+<p>Загрузка данных может быть прервана в любой момент с помощью метода <code>neuroDataLoadStop</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">voids</span> <span class="hljs-title">neuroDataLoadStop</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code><br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции.<br>
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroDataLoadStop(cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="8-load-complete"><br>Пометить запись как загруженную</h4>
+
+<p>Чтобы избежать повторной загрузки записи, ее нужно пометить как загруженную с помощью метода <code>neuroDataLoadComplete</code>.</p>
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroDataLoadComplete</span><span class="hljs-params">(int type, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><pi>type - тип данных: 0 -  ЭКГ, 1 - RR-интервалы;</pi></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "type": int<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+type - тип данных.<br>
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroDataLoadComplete( 0, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="8-load-events"><br>События при загрузке, формат данных</h4>
+
+
+
+
+<p>Данные передаются в приложение в виде событий <code>NeurosdkEvent</code> по порядку, без потерь. Параметры события:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>ON_DATA_LOAD</code>;</p></li>
+<li><p>поле <code>data_type</code> - тип данных: 0 - ЭКГ, 1 - RR;</p></li>
+<li><p>поле <code>size</code> - размер записи - количество точек измерений;</p></li>
+<li><p>поле <code>index</code> - индекс текущей пачки данных;</p></li>
+<li><p>поле <code>date_start</code> - дата и время записи в формате абсолютной мс;</p></li>
+<li><p>поле <code>list</code> - список измерений в формате JSON-строки.</p></li>
+</ul>
+
+<p>JSON-строка для ЭКГ данных имеет следующую структуру:</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title">"list":</span>{
+</div><div class="hljs-line"> [
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "freq":<span class="hljs-number">250</span>, <span class="hljs-comment ">//частота данных в Гц, число</span>
+</div><div class="hljs-line">    "ecg":<span class="hljs-number">[1024, 320, 250, ...]</span> <span class="hljs-comment ">//массив значений напряжения в мВ, числа</span>
+</div><div class="hljs-line">   }
+</div><div class="hljs-line"> ]
+</div><div class="hljs-line">}
+</div></code></pre>
+
+
+<p>JSON-строка для RR-интервалов данных имеет следующую структуру:</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title">"list":</span>{
+</div><div class="hljs-line"> [
+</div><div class="hljs-line">   {
+</div><div class="hljs-line">    "freq":<span class="hljs-number">250</span>, <span class="hljs-comment ">//частота данных в Гц, число</span>
+</div><div class="hljs-line">    "rr":<span class="hljs-number">[902,858,838, ...],</span> <span class="hljs-comment ">//массив значений RR-интервалов, в мс, числа</span>
+</div><div class="hljs-line">    "times":<span class="hljs-number">[0.904,1.762,2.601, ...]</span> <span class="hljs-comment ">//массив времен точек относительно начала записи ЭКГ, в сек, числа</span>
+</div><div class="hljs-line">   }
+</div><div class="hljs-line"> ]
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>По окончании загрузки данных формируется событие <code>NeurosdkEvent</code>, с параметрами:
+<ul>
+<li><p>поле <code>state</code> - значение <code>ON_DATA_LOAD_END</code>;</p></li>
+<li><p>поле <code>data_type</code> - тип данных: 0 - ЭКГ, 1 - RR;</p></li>
+</ul>
+</p>
+
+
+
+<!------------------------------------------------------------- Text message  -->
+
+<h2 id="9-main_message"><br>9 Отправка сообщения</h2>
+
+
+<!-- -->
+
+<h4 id="9-meas-txt-send">Отправка сообщения в устройство</h4>
+
+<p>Отправка сообщения в устройство осуществляется методом <code>neuroSendMessageToDevice</code>. Обработка сообщения и отображение его на экране устройства зависит от прошивки устройства.</p>
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSendMessageToDevice</span><span class="hljs-params">(int type, String title, String message, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>type - тип сообщения, число:<br>
+- 0 - сообщение о входящем звонке; title - имя контакта, content - номер телефона;<br>
+- 1 - SMS-сообщение; title - имя контакта, content - текст сообщения;<br>
+- 2 - письмо из почты; title - заголовок письма, content - текст письма;<br>
+- 3 - другое; title - заголовок сообщения, content - текст сообщения;<br>
+- 4 - QQ;<br>
+- 5 - WeChat;<br>
+- 6 - Sina Weibo;<br>
+- 7 - Twitter;<br>
+- 8 - Facebook;<br>
+- 9 - Messenger;<br>
+- 10 - Whatsapp;<br>
+- 11 - LinkedIn;<br>
+- 12 - Instagram;<br>
+- 13 - Skype;<br>
+- 14 - Line;<br>
+- 15 - Snapchat.
+</p></li>
+<li><p>title - заголовок сообщения, строка;</p></li>
+<li><p>content - содержимое сообщения, строка;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code><br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено, или функция не поддерживается устройством.</p></li></ul>
+
+<p>Поддержка типов сообщения зависит от прошивки устройства.</p>
+<p>Если сообщение не может быть полностью показано в устройстве, часть сообщения, которая не вывелась заменяется на "...".</p>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSendMessageToDevice(0, "Friend", "+79001234567", cb);
+</div></code></pre>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSendMessageToDevice(2, "Mail", "I receive this email.\nIt was a very long long long day. And so this message is long too.\n\nEnd.", cb);
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="9-meas-redirect-phone"><br>Перехват входящего звонка</h4>
+
+<p>Перехват входящего звонка и автоматическая отправка сообщения о звонке в устройство включается/выключается методом <code>neuroSettingRedirectPhoneCall</code>. По умолчанию функция выключена.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingRedirectPhoneCall</span><span class="hljs-params">(boolean enable, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+
+<ul>
+<li><p>enable - если требуется включение функции перехвата, задать true; если нет - false;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code><br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingRedirectPhoneCall(false, cb);
+</div></code></pre>
+
+<p><br>Узнать, включен ли перехват звонка можно методом <code>neuroGetSettingRedirectPhoneCall</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingRedirectPhoneCall</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>, "enabled": boolean.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+enabled - состояние:<br>
+- значение true - включен;<br>
+- значение false - выключен.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingRedirectPhoneCall(false, cb);
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="9-meas-redirect-sms"><br>Перехват sms-сообщения</h4>
+
+<p>Перехват sms-сообещния и автоматическая отправка сообщения в устройство включается/выключается методом <code>neuroSettingRedirectSms</code>. По умолчанию функция выключена.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingRedirectSms</span><span class="hljs-params">(boolean enable, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+
+<ul>
+<li><p>enable - если требуется включение функции перехвата, задать true; если нет - false;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingRedirectSms(false, cb);
+</div></code></pre>
+
+<p><br>Узнать, включен ли перехват sms-сообещния можно методом <code>neuroGetSettingRedirectSms</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingRedirectSms</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции<br>
+<code>"resultCode": int</code>, "enabled": boolean.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+enabled - состояние:<br>
+- значение true - включен;<br>
+- значение false - выключен.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingRedirectSms(false, cb);
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="9-meas-redirect-not"><br>Перехват уведомлений</h4>
+
+<p>Перехват уведомлений и автоматическая отправка сообщения в устройство включается/выключается методом <code>neuroSettingRedirectNotifications</code>. По умолчанию функция выключена.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingRedirectNotifications</span><span class="hljs-params">(boolean enable, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+
+<ul>
+<li><p>enable - если требуется включение функции перехвата, задать true; если нет - false;</p></li>
+<li><p>cb - результат выполнения функции:<br>
+<code>"resultCode": int</code>.<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingRedirectNotifications(true, cb);
+</div></code></pre>
+
+<p><br>Узнать, включен ли перехват уведомлений можно методом <code>neuroGetSettingRedirectNotifications</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingRedirectNotifications</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции<br>
+<code>"resultCode": int</code>, "enabled": boolean.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+enabled - состояние:<br>
+- значение true - включен;<br>
+- значение false - выключен.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingRedirectNotifications(false, cb);
+</div></code></pre>
+
+<!-- -->
+
+<h4 id="9-weather"><br>Отправка сведений о погоде</h4>
+
+<p>Отправка сведений о погоде сегодня осуществляется методами <code>neuroSendTodayWeather</code> (погода сегодня) и <code>neuroSendTomorrowWeather</code> (погода завтра). Обработка сообщения и отображение его на экране устройства зависит от прошивки устройства.</p>
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSendTodayWeather</span><span class="hljs-params">(String lowTemp, String highTemp, String curTemp, int type, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSendTomorrowWeather</span><span class="hljs-params">(String lowTemp, String highTemp, String curTemp, int type, NeuroCallbackValue callBack)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>lowTemp - наименьшее значение температуры воздуха, строка;</p></li>
+<li><p>highTemp - наибольшее значение температуры воздуха, строка;</p></li>
+<li><p>curTemp - текущее значение температуры воздуха, строка;</p></li>
+<li><p>type - тип погоды, число:<br>
+- 0 - неизвестно;<br>
+- 1 - солнечно;<br>
+- 2 - облачно;<br>
+- 3 - ветренно;<br>
+- 4 - дождь;<br>
+- 5 - снег;<br>
+- 6 - туман.<br>
+</p></li>
+<li><p>cb - результат выполнения функции<br>
+"resultCode" : int - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено, или функция не поддерживается устройством.</p></li></ul>
+
+<p>Поддержка типов сообщения зависит от прошивки устройства.</p>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSendTodayWeather("20", "40", "30", 1, cb);
+</div></code></pre>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSendTomorrowWeather("25", "45", "35", 2, cb);
+</div></code></pre>
+
+
+<!------------------------------------------------------------- Calibration  -->
+
+<h2 id="10-main_calibration">9 Калибровка</h2>
+
+
+<!-- -->
+
+<h4 id="10-bpm">Калибровка измерения давления</h4>
+
+<p>Калибровка метода измерения давления осуществляется вызовом метода <code>neuroSendBPMCalibration</code>.</p>
+
+<p>Калибровка проводится следующим образом:<br>
+1. Пользователь измеряет давление аппаратом.<br>
+2. Пользователь вводит показания в МП: систолические и диастолическое давления.<br> 
+3. МП отправляет показания в прибор.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSendBPMCalibration</span><span class="hljs-params">(int sbp, int dbp, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>sbp - систолическое давление, число;</p></li>
+<li><p>sbp - диастолическое давление, число;</p></li>
+<li><p>cb - результат выполнения функции :
+<br>"resultCode" : int -  код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено, или функция не поддерживается устройством.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSendBPMCalibration(120, 80, cb);
+</div></code></pre>
+
+
+
+
+<!-- -->
+
+<h4 id="10-bpm"><br>Калибровка измерения сахара в крови</h4>
+
+<p>Калибровка метода измерения сахара в крови осуществляется вызовом метода <code>neuroSendBloodSugarCalibration</code>.</p>
+
+<p>Калибровка проводится следующим образом:<br>
+1. Пользователь измеряет глюкозу аппаратом.<br>
+2. Пользователь вводит показания в МП, выбирает тип калибровки.<br> 
+3. МП отправляет показание в прибор.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSendBloodSugarCalibration</span><span class="hljs-params">(float value, int type, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>value - уровень глюкозы, ммоль/л, число;</p></li>
+<li><p>type - тип калибровки, число:<br>
+0 - быстрая;<br>
+1 - значение измерено после завтрака;<br>
+2 - значение измерено перед обедом;<br>
+3 - значение измерено после обеда;<br>
+4 - значение измерено перед ужином;<br>
+5 - значение измерено после ужина.<br>
+</p></li>
+<li><p>cb - результат выполнения функции:<br>
+"resultCode" : int - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Ошибка формируется, если устройство не подключено, или функция не поддерживается устройством.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"> NeurosdkModule.getInstance().neuroSendBloodSugarCalibration(4.6, 0, cb);
+</div></code></pre>
+
+
+
+
+<!------------------------------------------------------------- Fware  -->
+
+<h2 id="11-main_fware"><br>11 Прошивка прибора</h2>
+
+
+<!-- -->
+
+<h4 id="11-server">Сервер прошивки</h4>
+
+
+<p>Прошивки выкладываются на сервер.
+</p>
+
+<p>В корне папки лежит файл <code>versions.json</code>, который содержит описание перечня версий. Файл имеет следующую структуру:</p>
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title">
+</div><div class="hljs-line"> {
+</div><div class="hljs-line">   "version":[
+</div><div class="hljs-line">      {
+</div><div class="hljs-line">       "file": <span class="hljs-number">"dev16_2.0_2024-09-22_990dd01.zip"</span>, <span class="hljs-comment ">// имя архива
+</div><div class="hljs-line">       "device":  <span class="hljs-number">"16"</span>, <span class="hljs-comment ">// код модели устройства </span> 
+</div><div class="hljs-line">       "version":  <span class="hljs-number">"2.0"</span>, <span class="hljs-comment "> // номер версии </span>
+</div><div class="hljs-line">       "git":  <span class="hljs-number">"990dd01"</span>, <span class="hljs-comment "> // git id версии </span>
+</div><div class="hljs-line">       "date":  <span class="hljs-number">"2024-09-22"</span> <span class="hljs-comment ">// дата сборки </span>
+</div><div class="hljs-line">     },
+</div><div class="hljs-line"> ...
+</div><div class="hljs-line">   ]
+</div><div class="hljs-line"> }
+</div></code></pre>
+
+<p>Внутри архива содержатся файлы прошивки и информация о файлах для прошивки.</p>
+
+<p>Перечень моделей устройств:</p>
+<ul>
+<li>33 - модель Neyrox Pro, экран 18 дюймов.</li>
+</ul>
+
+<p>Выбор сервера прошивок осуществляется методом <code>neuroSetFwareSource</code>. При вызове метода производится загрузка versions.json файла и обновляется список доступных версий.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSetFwareSource</span><span class="hljs-params">(String path, boolean needAll, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>path - путь до сервера, строка;</p></li>
+<li><p>needAll - true, если требуется список всех доступных устройств, false - для вашего устройства (deviceId определяется атоматически);</p></li>
+<li><p>cb - результат выполнения функции:
+<br>"resultCode": int - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.neuroSetFwareSource('https://server.addr/release/', true, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="11-versions"><br>Список доступных версий</h4>
+
+<p>Список доступных версий вещается в событии <code>NeurosdkEvent</code>:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>FWARE_VERSIONS</code>;</p></li>
+<li><p>поле <code>list</code> - список версий в формате json-строки.<br></p></li>
+</ul>
+</p>
+
+<p>Формат JSON-строки со списком версий:</p>
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-title"></div><div class="hljs-line"> {
+</div><div class="hljs-line"> "list":[
+</div><div class="hljs-line">      {
+</div><div class="hljs-line">       "device":  <span class="hljs-number">"16"</span>, <span class="hljs-comment ">// код модели устройства </span> 
+</div><div class="hljs-line">       "version":  <span class="hljs-number">"2.0"</span>, <span class="hljs-comment "> // номер версии </span>
+</div><div class="hljs-line">       "git":  <span class="hljs-number">"990dd01"</span>, <span class="hljs-comment "> // git id версии </span>
+</div><div class="hljs-line">       "date":  <span class="hljs-number">"2024-09-22"</span> <span class="hljs-comment ">// дата сборки </span>
+</div><div class="hljs-line">     },
+</div><div class="hljs-line">     ...
+</div><div class="hljs-line">   ]
+</div><div class="hljs-line"> }
+</div></code></pre>
+
+
+
+<!-- -->
+
+<h4 id="11-start"><br>Запуск обновления прошивки</h4>
+
+<p>Запуск обновления прошивки осуществляется вызовом метода <code>neuroStartFwareUpdate</code>.</p>
+
+<p><b>Внимание!</b> Прошивку нельзя прерывать! Если она запущена, то дождаться окончания.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroStartFwareUpdate</span><span class="hljs-params">(String version, int deviceId, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>version - номер версии, строка;</p></li>
+<li><p>deviceId - модель устройства, число;</p></li>
+<li><p>cb - результат выполнения функции :
+<br>"resultCode" : int - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroStartFwareUpdate(selectedFware, 33, cb);
+</div></code></pre>
+
+
+<p><br>Статус загрузки вещается в событии <code>NeurosdkEvent</code>:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>FWARE_STEP</code>;</p></li>
+<li><p>поле <code>step</code> - код этапа прошивки, число:<br>
+- 0 - инициализация;<br>
+- 1 - загружены файлы, запуск прошивки;<br>
+- 2 - прошивка app файла;<br> 
+- 3 - прошивка ui файла;<br>
+- 4 - запуск устройства.<br>
+</p></li>
+<li><p>поле <code>percent</code> - процент выполнения этапа.</p>
+</ul>
+</p>
+
+
+<!-- -->
+
+<h4 id="11-errors"><br>Ошибки обновления прошивки</h4>
+
+<p>Ошибки, связанные с обновлением прошивки, вещаются в событии <code>NeurosdkEvent</code>:</p>
+<ul>
+<li><p>поле <code>state</code> - значение <code>FWARE_ERROR</code>;</p></li>
+<li><p>поле <code>error</code> - код ошибки, число:<br>
+- 0 - нет ошибки;<br>
+- 1 - не задан источник прошивок (сервер);<br>
+- 2 - ошибка доступа к папке (папка не существует или требуется вызвать окно настроек полного доступа до файловой системы) - вызывать окно настроек доступа к файловой системе методом <code>neuroShowMediaAccessSettings</code>;<br>
+- 3 - отсутствует файл версий;<br>
+- 4 - ошибка содержимого;<br>
+- 5 - некорректная версия;<br>
+- 6 - ошибка доступа к файлу (файл не существует или требуется вызвать окно настроек полного доступа до файловой системы);<br>
+- 7 - ошибка доступа к ссылке https (ссылка не валидна или нет доступа в Интернет);<br>
+- 8 - прошивка уже идет, не прерывайте (формируется при повторном вызове);<br>
+- 9 - ошибка выполнения процедуры прошивки.
+<br>
+</p></li>
+</ul>
+</p>
+
+
+<!-- -->
+
+<h4 id="11-control-bat"><br>Контроль уровня заряда батареи</h4>
+
+<p>Контроль уровня батареи включается/выключается методом <code>neuroSettingFwareBatteryCheckEnabled</code>. По умолчанию контроль включен.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingFwareBatteryCheckEnabled</span><span class="hljs-params">(boolean enable, int lowBatteryThreshold, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+
+<ul>
+<li><p>enable - если требуется включение функции перехвата, задать true; если нет - false;</p></li>
+<li><p>lowBatteryThreshold - минимальный уровень заряда батареи, в процентах, целое число от 0 до 90;</p></li>
+<li><p>cb - результат выполнения функции:
+<br>"resultCode": int, "lowBatteryThreshold": int.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+lowBatteryThreshold - установленное значение заряда батареи.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingFwareBatteryCheckEnabled(true, 30, cb);
+</div></code></pre>
+
+<p><br>Узнать, включен ли контроль уровня заряда батареи можно методом <code>neuroGetSettingFwareBatteryCheckEnabled</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingFwareBatteryCheckEnabled</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:
+<br>"resultCode": int, "enabled": boolean, "lowBatteryThreshold": int.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+enabled - состояние:<br>
+- значение true - включен;<br>
+- значение false - выключен.<br>
+lowBatteryThreshold - минимальный уровень заряда батареи, в процентах, целое число.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingFwareBatteryCheckEnabled(false, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="11-control-version"><br>Контроль версионности</h4>
+
+<p>Контроль версионности включается/выключается методом <code>neuroSettingFwareVersionCheckEnabled</code>. При включенном контроле не удастся прошить файл, версия которого ниже версии прибора. По умолчанию контроль выключен.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSettingFwareVersionCheckEnabled</span><span class="hljs-params">(boolean enable, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+
+<ul>
+<li><p>enable - если требуется включение функции перехвата, задать true; если нет - false;</p></li>
+<li><p>cb - результат выполнения функции: 
+<br>"resultCode": int, "lowBatteryThreshold": int.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSettingFwareVersionCheckEnabled(true, cb);
+</div></code></pre>
+
+<p><br>Узнать, включен ли контроль уровня заряда батареи можно методом <code>neuroGetSettingFwareVersionCheckEnabled</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSettingFwareVersionCheckEnabled</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>cb - результат выполнения функции:
+<br>"resultCode": int, "enabled": boolean.<br>
+resultCode - целое число, код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+enabled - состояние:<br>
+- значение true - включен;<br>
+- значение false - выключен.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingFwareVersionCheckEnabled(false, cb);
+</div></code></pre>
+
