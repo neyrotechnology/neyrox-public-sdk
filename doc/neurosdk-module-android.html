@@ -25,6 +25,7 @@
 <li><a href="#2.7-permissions">Запрос группы разрешений</a>
 <li><a href="#2.8-permissions">Вызов окна настроек приложения и окна настроек уведомлений</a>
 <li><a href="#2.9-log">Включение режима записи лога</a>
+<li><a href="#2.10-log-send">Отправка лога</a>
 
 <li><a href="#3-main_search">3 Доступ к устройству</a>
 <li><a href="#3-start-search">Поиск устройства</a>
@@ -145,13 +146,13 @@
 
 <p>Имя модуля - <code>NeurosdkModule</code>.</p>
 
-<p>Нативный класс, реализующий функционал на платформе android, - <code>NeurosdkModule.java</code>. Реализуется в пакете <code>neurosdkmodule-release.jar</code>. </p>
+<p>Нативный класс, реализующий функционал на платформе android, - <code>NeurosdkModule.java</code>. Имя пакета: <code>com.neyrox.neurosdkmodule</code>, модуль - <code>neurosdkmodule-release.jar</code>. </p>
 
 <!------   -->
 
 <h4 id="12-main_load">Загрузка модуля</h4>
 
-<p>Для работы подключить к проекту модуль neurosdkmodule.jar со всеми зависимостями (папкой jniLibs). Имя пакета: <code>com.neyrox.neurosdkmodule</code>.</p>
+<p>Для работы подключить к проекту модуль neurosdkmodule.jar со всеми зависимостями (папкой jniLibs).</p>
 
 
 <pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">Пример в файле build.gradle:
@@ -183,23 +184,23 @@
     android:foregroundServiceType="location|connectedDevice"
     /&gt
 
-&ltservice android:name="com.neurotechnologyllc.neurosdkmodule.phone.NotificationService"
-    android:label="com.neurotechnologyllc.neyroxtest.phone.NotificationService"
-    android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-    android:enabled="true"
-    android:exported="true"&gt
-    &ltintent-filter&gt
-        &ltaction android:name="android.service.notification.NotificationListenerService"  /&gt
-    &lt/intent-filter&gt
-    &ltmeta-data
-        android:name="android.service.notification.default_filter_types"
-        android:value="conversations|alerting"&gt
-    &lt/meta-data&gt
-    &ltmeta-data
-        android:name="android.service.notification.disabled_filter_types"
-        android:value="ongoing|silent"&gt
-    &lt/meta-data&gt
-&lt/service&gt
+&ltservice android:name="com.neyrox.neurosdkmodule.phone.NotificationService"
+            android:label="com.neurotechnologyllc.neyroxtest.phone.NotificationService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:enabled="true"
+            android:exported="true"&gt
+            &ltintent-filter&gt
+                &ltaction android:name="android.service.notification.NotificationListenerService"  /&gt
+            &lt/intent-filter&gt
+            &ltmeta-data
+                android:name="android.service.notification.default_filter_types"
+                android:value="conversations|alerting"&gt
+            &lt/meta-data&gt
+            &ltmeta-data
+                android:name="android.service.notification.disabled_filter_types"
+                android:value="ongoing|silent"&gt
+            &lt/meta-data&gt
+        &lt/service&gt
 </div></code></pre>
 
 
@@ -493,7 +494,10 @@ NeurosdkModule.getInstance().removeEventListener();
 <ul><li><p><code>cb</code> - результат выполнения функции. Данные:<br>
 <code>"resultCode": int</code> - код ошибки:<br>
 - значение 0 - все разрешения установлены;<br>
-- значение 1 - есть разрешения, которые необходимо запросить. Отправлен запрос пользователю.</li></ul>
+- значение 1 - есть разрешения, которые будут запрошены, автоматически отправлен запрос пользователю.<br>
+<b>Внимание.</b> При коде ошибке 1 инициируется цепочка запросов, по окончании которой формируется событие <code>ON_REQUEST_END</code>. <b>Необходимо дождаться этого события</b>.<br>
+При коде ошибке 0 событие <code>ON_REQUEST_END</code> не формируется.
+</li></ul>
 
 
 <h6 id="desc">Описание события</h6>
@@ -710,7 +714,7 @@ NeurosdkModule.getInstance().removeEventListener();
 
 <p>Модуль имеет возможность записи лога данных от устройства. Включение, выключение режима осуществляется методом <code>neuroSetLogEnabled</code>. По умолчанию запись лога выключена.</p>
 
-<p>Лог пишется в папку <code>Documents/neyrox_logs</code>. Имя файла - "log_дата.txt".<br>
+<p>Лог пишется в папку <code>Documents/neyrox_logs</code>. Имя файла - "log_дата.txt". Сохраняются логи за последние 3 дня.<br>
 Для записи лога должны быть включены разрешения на работу с файловой системой.</p>
 
 
@@ -728,6 +732,36 @@ NeurosdkModule.getInstance().removeEventListener();
 
 <pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSetLogEnabled(true);
 </div></code></pre>
+
+
+<!-- -->
+
+<h4 id="2.10-log-send"><br>Отправка лога </h4>
+
+
+<p>Лог может быть отправлен в виде архива методом <code>neuroSendLog</code> средствами операционной системы: при вызове метода появляется окно выбора приложения для отправки.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroSendLog</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p><code>cb</code> - результат выполнения функции. Данные:<br>
+<code>"resultCode": int</code> - код результата:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.<br>
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroSendLog(cb);
+</div></code></pre>
+
 
 
 <!------------------------------------------------------------- Search   -->
@@ -755,7 +789,7 @@ NeurosdkModule.getInstance().removeEventListener();
 
 <h6 id="params">Описание параметров функции</h6>
 
-<ul><li><p><code>cb</code> - результат выполнения функции вида<br>
+<ul><li><p><code>cb</code> - результат выполнения функции. Данные:<br>
 <code>"resultCode": int</code> - код результата:<br>
 - значение 0 - при успешном вызове функции;<br>
 - значение 1 - при ошибке (ожидается реакция пользователя);<br>
@@ -1391,8 +1425,7 @@ boolean isConnected = NeurosdkModule.getInstance().neuroIsDeviceConnected();
 7 - количество шагов - в ед.;<br>
 8 - глюкоза - в ммоль/л;<br>
 9 - частота дыхания - в rpm;<br>
-17 - ВСР по PPG-сигналу - в  мс;<br>
-19 - ВСР по ЭКГ-сигналу - в  мс;<br>
+17 - значение ВСР, посчитанное по PPG-сигналу - в  мс;<br>
 20 - уровень стресса - нВатт;<br>
 21 - количество кКал - в кКал (для модели Neyrox N1);<br>
 22 - уровень метаболизма - в нКкал (для модели Neyrox Pro);<br>
