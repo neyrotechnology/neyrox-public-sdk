@@ -17,6 +17,7 @@
 
 <li><a href="#2-main_init">2 Инициализация модуля</a>
 <li><a href="#2.1-init">Инициализация</a>
+<li><a href="#2.2-version">Версия модуля</a>
 <li><a href="#2.2-demo">Включение демо-режима</a>
 <li><a href="#2.3-service">Запуск в режиме сервиса</a>
 <li><a href="#2.4-platform">Определение платформы, на которой запущено приложение</a>
@@ -38,6 +39,7 @@
 <li><a href="#4-main_device">4 Информация об устройстве</a>
 <li><a href="#4-main_info">Состояние устройства</a>
 <li><a href="#4-main_cap">Возможности прибора</a>
+<li><a href="#4-self_inspect">Самопроверка устройства</a>
 
 <li><a href="#5-main_settings">5 Настройка устройства</a>
 <li><a href="#5-lang">Настройка языка</a>
@@ -80,6 +82,11 @@
 <li><a href="#10-bpm">Калибровка измерения сахара в крови</a>
 
 <li><a href="#11-main_fware">11 Прошивка прибора</a>
+
+<li><a href="#12-main_events">12 Прочие события</a>
+<li><a href="#12-sos">Событие SOS</a>
+<li><a href="#12-find_mobile">Событие Поиск телефона</a>
+
 </ul>
 </nav>
 
@@ -358,6 +365,27 @@ NeurosdkModule.getInstance().removeEventListener();
     void callback(Map&ltString, Object&gt params);
 }
 </div></code></pre>
+
+<!-- -->
+
+<h4 id="2.2-version"><br>Версия модуля</h4>
+
+<p>Версию модуля можно посмотреть методом <code>getVersion</code>.</p>
+
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">String</span> <span class="hljs-title">getVersion</span><span class="hljs-params">()</span></span>
+</div></code></pre>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">String version = NeurosdkModule.getInstance().getVersion();
+</div></code></pre>
+
+
+
 
 <!-- -->
 
@@ -1057,6 +1085,7 @@ boolean isConnected = NeurosdkModule.getInstance().neuroIsDeviceConnected();
 <li><p>поле <code>devMAC</code> - MAC-адрес устройства, строка;</p></li>
 <li><p>поле <code>version</code> содержит номер версии прошивки устройства, строка;</p></li>
 <li><p>поле <code>batValue</code> - уровень заряда батареи, число от 0 до 100;</p></li>
+<li><p>поле <code>batVoltage</code> - уровень заряда батареи в мВ, число от 2800 до 4200 (техническая информация, только для сведения);</p></li>
 <li><p>поле <code>batState</code> - состояние батареи, число:<br>
 - 0 - неизвестно;<br>
 - 1 - нормальный уровень заряда;<br>
@@ -1123,8 +1152,60 @@ boolean isConnected = NeurosdkModule.getInstance().neuroIsDeviceConnected();
 <li><p>поле <code>hasScreen</code> - наличие сенсорного экрана, boolean;</p></li>
 <li><p>поле <code>hasBPMCalibration</code> - поддерживает функцию калибровки измерения давления, boolean;</p></li>
 <li><p>поле <code>hasGluCalibration</code> - поддерживает функцию калибровки измерения глюкозы, boolean.</p></li>
+<li><p>поле <code>hasSelfInspection</code> - поддерживает функцию самопроверки, boolean.</p></li>
 </ul>
 
+
+
+<!-- -->
+
+<h4 id="4-self_inspect"><br>Самопроверка устройства</h4>
+
+<p>Запросить результат самопроверки устройства можно методом <code>neuroGetSelfInspection</code>.</p>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroGetSelfInspection</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p><code>cb</code> - результат выполнения функции:<br>
+<code>"resultCode": int</code> - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке. Возвращается, если устройство не подключено или не поддерживает функцию самопроверки.<br>
+<code>"info": HashMap&ltString, Object&gt</code> - результат самопроверки устройства.
+</li></ul>
+
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSelfInspection(cb);
+</div></code></pre>
+
+<p>Список параметров <code>info</code> имеет следующую структуру.</p>
+
+
+<ul>
+<li><p>поле <code>TP</code> - результат проверки сенсора экрана, int;</p></li>
+<li><p>поле <code>LCD</code> - результат проверки экрана, int;</p></li>
+<li><p>поле <code>Battery</code> - результат проверки батареи, int;</p></li>
+<li><p>поле <code>Flash</code> - результат проверки модуля Flash-памяти, int;</p></li>
+<li><p>поле <code>TSensor</code> - результат проверки датчика температуры, int;</p></li>
+<li><p>поле <code>GSensor</code> - результат проверки акселерометра, int;</p></li>
+<li><p>поле <code>PPG</code> - результат проверки PPG-датчика, int;</p></li>
+<li><p>поле <code>ECG</code> - результат проверки модуля ЭКГ, int;</p></li>
+<li><p>поле <code>EDA</code> - результат проверки модуля ЭДА, int.</p></li>
+</ul>
+
+<p>Результат самопроверки:<br>
+- 0 - ошибка доступа к комопненту устройства или есть сбои в работе компонента;<br>
+- 1 - компонент исправен.</p>
 
 
 <!------------------------------------------------------------- Device settings   -->
@@ -2507,4 +2588,81 @@ boolean isConnected = NeurosdkModule.getInstance().neuroIsDeviceConnected();
 
 <pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroGetSettingFwareVersionCheckEnabled(false, cb);
 </div></code></pre>
+
+
+<!------------------------------------------------------------- Events  -->
+
+<h2 id="12-main_events">12 Прочие события</h2>
+
+
+<!-- -->
+
+<h4 id="12-sos">Событие SOS</h4>
+
+
+<p>Событие SOS возникает, когда на устройстве нажимается кнопка SOS. Кнопка может быть нажата несколько раз, в таком случае, будет сгенерировано несколько событий.</p>
+
+<h6 id="desc">Описание события</h6>
+
+<p>Параметры события <code>NeurosdkEvent</code>: поле <code>"state": String</code> - значение <code>ON_EVENT_SOS</code>.</p>
+
+
+
+<!-- -->
+
+<h4 id="12-find_mobile"><br>Событие Поиск телефона</h4>
+
+<p>Событие Поиск телефона возникает, когда на устройстве нажимается кнопка "Поиск телефона" и когда завершается поиск (пользователь выключает функцию).</p>
+<p>При включенном поиске мобильное устройство должно сигнализировать, где оно находится (музыкой или вибрацией). В SDK предусмотрен обработчик события по умолчанию: телефон вибрирует при поиске. Этот обработчик может быть выключен со стороны приложения вызовом метода <code>setFindMobileDefaultListenerEnabled</code>. В таком случае, мобильное приложение само реализует обработку событий.<br>Узнать, включен ли обработчик по умолчанию можно методом <code>isFindMobileDefaultListenerEnabled</code>.</p>
+
+<p>Для вибрации моблиьного устройства необходимо разрешение Вибрация (см. разрешения).</p>
+
+
+<h6 id="desc">Описание события</h6>
+
+<p>Параметры события <code>NeurosdkEvent</code>:</p>
+<ul>
+<li><p>поле <code>"state": String</code> - значение <code>ON_EVENT_FIND_MOBILE</code>;</p></li>
+<li><p>поле <code>"value": int</code> - значение: 0 - выключить; 1 - включить.</p></li>
+</ul>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">setFindMobileDefaultListenerEnabled</span><span class="hljs-params">(boolean enabled)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p><code>enabled</code> - состояние обработчика по умолчанию:<br>
+- значение true - включить;<br>
+- значение false - выключить.
+</p></li></ul>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().setFindMobileDefaultListenerEnabled(false);
+</div></code></pre>
+
+
+<h6 id="desc">Описание функции</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">isFindMobileDefaultListenerEnabled</span><span class="hljs-params">()</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<p>Возвращает состояние обработчика: false - выключен, true - включен.</p>
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">boolean res = NeurosdkModule.getInstance().isFindMobileDefaultListenerEnabled();
+</div></code></pre>
+
+<p></p>
+
+<p></p>
 
