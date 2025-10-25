@@ -35,6 +35,10 @@
 <li><a href="#3-connect">Подключение к найденному устройству</a>
 <li><a href="#3-autoconnect">Автоподключение</a>
 <li><a href="#3-disconnect">Отключение от устройства</a>
+<li><a href="#3-reset">Сброс устройства</a>
+<li><a href="#3-erase">Очистка данных устройства</a>
+<li><a href="#3-finddevice">Функция "Найди часы"</a>
+<li><a href="#3-turnoff">Выключение устройства</a>
 
 <li><a href="#4-main_device">4 Информация об устройстве</a>
 <li><a href="#4-main_info">Состояние устройства</a>
@@ -169,9 +173,9 @@
     ...
     implementation files('libs/neurosdkmodule-release.jar')
     implementation files('libs/neurosdk-release.jar')
-    implementation files('libs/rtk-bbpro-core-1.8.52.jar')
-    implementation files('libs/rtk-core-1.5.52.jar')
-    implementation files('libs/rtk-dfu-3.12.0.jar')
+    implementation files('libs/rtk-bbpro-core-1.8.82.jar')
+    implementation files('libs/rtk-core-1.6.33.jar')
+    implementation files('libs/rtk-dfu-3.12.43.jar')
     implementation files('libs/rtk-dfu-usb-1.1.0.jar')
     implementation files('libs/rtk-usb-1.0.7.jar')
      ...
@@ -184,7 +188,7 @@
 
 
 <pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">&ltservice
-    android:name="com.neurotechnologyllc.neurosdk.ServiceNeuroSdk"
+    android:name="com.neurotechnologyllc.neurosdk.service.ServiceNeuroSdk"
     android:enabled="true"
     android:exported="true"
     tools:node="merge"
@@ -424,7 +428,7 @@ NeurosdkModule.getInstance().removeEventListener();
 <p>В режиме background сервис жив, пока жива хотя бы одна активность приложения.<br>
 В режиме foreground сервис жив, пока живо приложение и отображается уведомление в операционной системе.</p>
 
-<p>Вид уведомления в будущем можно настроить (доработкой SDK). Пример уведомления по умолчанию для android 12:</p>
+<p>Пример уведомления по умолчанию для android 12:</p>
 <p><image id="img-foreground_notify_android12" src="img/foreground_notify_android12.png" height=200></p>
 
 <h6 id="desc">Описание функции</h6>
@@ -454,6 +458,8 @@ NeurosdkModule.getInstance().removeEventListener();
             }
         });
 </div></code></pre>
+
+<p> По умолчанию сервис выключен. При вызове метода, переданные параметры (состояние, запуск в фоновом режиме, номер уведомления) сохраняются. При запуске модуля сервис стартует в соответствие с последними параметрами запуска.</p>
 
 <!-- -->
 
@@ -740,7 +746,7 @@ NeurosdkModule.getInstance().removeEventListener();
 
 <h4 id="2.9-log"><br>Включение режима записи лога</h4>
 
-<p>Модуль имеет возможность записи лога данных от устройства. Включение, выключение режима осуществляется методом <code>neuroSetLogEnabled</code>. По умолчанию запись лога выключена.</p>
+<p>Модуль имеет возможность записи лога данных от устройства. Включение, выключение режима осуществляется методом <code>neuroSetLogEnabled</code>. По умолчанию запись лога включена.<br>При инициализации модуля состояние лога восстанавливатся.</p>
 
 <p>Лог пишется в папку <code>Documents/neyrox_logs</code>. Имя файла - "log_дата.txt". Сохраняются логи за последние 3 дня.<br>
 Для записи лога должны быть включены разрешения на работу с файловой системой.</p>
@@ -1011,6 +1017,117 @@ NeurosdkModule.getInstance().removeEventListener();
 <p>При отключении от устройства модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_DISCONNECTED</code>.</p>
 
 
+<!-- -->
+
+<h4 id="3-reset"><br>Перезагрузка устройства</h4>
+
+<p>Если устройство подключено, его можно перезагрузить (сбросить) методом <code>neuroResetDevice</code>. Вызов метода соответствует вызову раздела меню "Перезагрузка" в устройстве.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroResetDevice</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p><code>cb</code> - результат выполнения функции:<br>
+<code>"resultCode": int</code> - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroResetDevice(cb);
+</div></code></pre>
+
+<p>При сбросе устройства модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_DEVICE_RESET</code>.</p>
+
+
+
+<!-- -->
+
+<h4 id="3-erase"><br>Очистка данных устройства</h4>
+
+<p>Если устройство подключено, можно очистить его данные методом <code>neuroEraseDevice</code>. Вызов метода соответствует вызову раздела меню "Очистка" в устройстве.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroEraseDevice</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p><code>cb</code> - результат выполнения функции:<br>
+<code>"resultCode": int</code> - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroEraseDevice(cb);
+</div></code></pre>
+
+<p>При сбросе устройства модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_DEVICE_ERASE</code>.</p>
+
+
+<!-- -->
+
+<h4 id="3-finddevice"><br>Функция "Найди часы"</h4>
+
+<p>Если устройство подключено и оно потерялось, его можно найти. Вызов метода <code>neuroFindDevice</code> запускает вибрацию на часах. </p>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroFindDevice</span><span class="hljs-params">(int timeS, NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p>timeS - длительность вибрации в секундах, число;</p></li>
+<li><p><code>cb</code> - результат выполнения функции:<br>
+<code>"resultCode": int</code> - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</p></li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroFindDevice(10, cb);
+</div></code></pre>
+
+
+<!-- -->
+
+<h4 id="3-turnoff"><br>Выключение устройства</h4>
+
+<p>Если устройство подключено, можно его выключить методом <code>neuroTurnOffDevice</code>. Вызов метода соответствует вызову раздела меню "Выключить" в устройстве.<br>
+Внимание! В выключенном состояние устройство перестает вещать данные по Bluetooth.</p>
+
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">neuroTurnOffDevice</span><span class="hljs-params">(NeuroCallbackValue cb)</span></span>
+</div></code></pre>
+
+
+<h6 id="params">Описание параметров функции</h6>
+
+<ul>
+<li><p><code>cb</code> - результат выполнения функции:<br>
+<code>"resultCode": int</code> - код ошибки:<br>
+- значение 0 - при успешном вызове функции;<br>
+- значение 1 - при ошибке.</li></ul>
+
+
+<h6 id="example">Пример</h6>
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs"><div class="hljs-line">NeurosdkModule.getInstance().neuroTurnOffDevice(cb);
+</div></code></pre>
+
+<p>При сбросе устройства модуль выдает событие <code>NeurosdkEvent</code>, в котором значение поля <code>state</code> равно <code>ON_DEVICE_TURN_OFF</code>.</p>
+
 
 
 <!------------------------------------------------------------- Device Info   -->
@@ -1151,8 +1268,12 @@ boolean isConnected = NeurosdkModule.getInstance().neuroIsDeviceConnected();
 <li><p>поле <code>measHRV</code> - возможность измерения ВСР, boolean;</p></li>
 <li><p>поле <code>hasScreen</code> - наличие сенсорного экрана, boolean;</p></li>
 <li><p>поле <code>hasBPMCalibration</code> - поддерживает функцию калибровки измерения давления, boolean;</p></li>
-<li><p>поле <code>hasGluCalibration</code> - поддерживает функцию калибровки измерения глюкозы, boolean.</p></li>
-<li><p>поле <code>hasSelfInspection</code> - поддерживает функцию самопроверки, boolean.</p></li>
+<li><p>поле <code>hasGluCalibration</code> - поддерживает функцию калибровки измерения глюкозы, boolean;</p></li>
+<li><p>поле <code>hasSelfInspection</code> - поддерживает функцию самопроверки, boolean;</p></li>
+<li><p>поле <code>hasDeviceReset</code> - поддерживает функцию сброса устройства, boolean;</p></li>
+<li><p>поле <code>hasDeviceErase</code> - поддерживает функцию очистки данных устройства, boolean;</p></li>
+<li><p>поле <code>hasDeviceTurnOff</code> - поддерживает функцию выключения устройства, boolean;</p></li>
+<li><p>поле <code>hasFindDevice</code> - поддерживает функцию "Найти часы", boolean.</p></li>
 </ul>
 
 
@@ -1510,12 +1631,16 @@ boolean isConnected = NeurosdkModule.getInstance().neuroIsDeviceConnected();
 20 - уровень стресса - нВатт;<br>
 21 - количество кКал - в кКал (для модели Neyrox N1);<br>
 22 - уровень метаболизма - в нКкал (для модели Neyrox Pro);<br>
-23 - значение QTc интервала.
+23 - значение QTc интервала;<br>
+24 - индекс воспаления (для модели Neyrox Pro);<br>
+25 - интенсивность обмена (для модели Neyrox Pro);<br>
+26 - данные сна.
 <li><p>поле <code>value</code> - значение параметра для параметров кроме давления.
 </p></li>
-
 <li><p>поле <code>value_sys</code> - систолическое давление;</p></li>
 <li><p>поле <code>value_dia</code> - диастолические давление;</p></li>
+<li><p>поле <code>value_shallow</code> - длительность поверхностного сна, час;</p></li>
+<li><p>поле <code>value_deep</code> - длительность глубокого сна, час;</p></li>
 <li><p>поле <code>time</code> - время измерения, в мс;</p></li>
 </ul>
 
